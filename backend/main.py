@@ -14,7 +14,7 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # Al usar Nginx como proxy, esto garantiza que la comunicación no se corte
-    allow_credentials=True, # Nota: Si usas "*" allow_credentials puede requerir configuración específica en algunas versiones de FastAPI, si te da error de credenciales, puedes comentarlo o cambiarlo a False si no manejas cookies/sesiones
+    allow_credentials=False, # Nota: Si usas "*" allow_credentials puede requerir configuración específica en algunas versiones de FastAPI, si te da error de credenciales, puedes comentarlo o cambiarlo a False si no manejas cookies/sesiones
     allow_methods=["*"],
     allow_headers=["*"],
 )
