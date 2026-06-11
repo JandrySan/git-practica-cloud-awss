@@ -1,5 +1,5 @@
 // Mismo origen: nginx en Cloud Run reenvía /reserva al backend en AWS
-const API_URL = "https://git-practica-cloud-aws-194727093142.us-west1.run.app";
+const API_URL = "http://git-practica-cloud-aws-194727093142.us-west1.run.app";
 
 async function enviarReserva() {
   const nombre   = document.getElementById("nombre").value.trim();

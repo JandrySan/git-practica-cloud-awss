@@ -10,14 +10,11 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# ✅ CORS: permite que el frontend en Cloud Run llame al backend
+# ✅ CORS optimizado para trabajar junto al proxy de Nginx
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "https://git-practica-cloud-aws-194727093142.us-west1.run.app",
-        "http://Restaurante-v2-env.eba-yimwd639.us-east-2.elasticbeanstalk.com",
-    ],
-    allow_credentials=True,
+    allow_origins=["*"],  # Al usar Nginx como proxy, esto garantiza que la comunicación no se corte
+    allow_credentials=True, # Nota: Si usas "*" allow_credentials puede requerir configuración específica en algunas versiones de FastAPI, si te da error de credenciales, puedes comentarlo o cambiarlo a False si no manejas cookies/sesiones
     allow_methods=["*"],
     allow_headers=["*"],
 )
