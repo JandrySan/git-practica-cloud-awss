@@ -37,7 +37,7 @@ class Reserva(BaseModel):
 @app.get("/")
 def root():
     return {
-        "mensaje": "API Restaurante Modeladov2 funcionando  ✅",
+        "mensaje": "API Restaurante Modelado y frontend funcionando  ✅",
         "version": "1.0.0",
         "fecha": str(datetime.datetime.now())
     }
