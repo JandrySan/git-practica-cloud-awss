@@ -1,19 +1,21 @@
-
 steps:
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', 'gcr.io/$PROJECT_ID/restaurante-frontend', './frontend']
+    args: ['build', '-t', 'us-west1-docker.pkg.dev/project-c37db799-6063-4bcf-835/restaurante/frontend:$COMMIT_SHA', './frontend']
 
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['push', 'gcr.io/$PROJECT_ID/restaurante-frontend']
+    args: ['push', 'us-west1-docker.pkg.dev/project-c37db799-6063-4bcf-835/restaurante/frontend:$COMMIT_SHA']
 
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: gcloud
     args:
       - run
       - deploy
-      - restaurante-frontend
-      - --image=gcr.io/$PROJECT_ID/restaurante-frontend
-      - --region=us-central1
+      - git-practica-cloud-aws
+      - --image=us-west1-docker.pkg.dev/project-c37db799-6063-4bcf-835/restaurante/frontend:$COMMIT_SHA
+      - --region=us-west1
       - --platform=managed
       - --allow-unauthenticated
       - --port=8080
+
+options:
+  logging: CLOUD_LOGGING_ONLY
