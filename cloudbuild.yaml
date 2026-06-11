@@ -1,12 +1,12 @@
 steps:
-  # 1. Build de la imagen del frontend apuntando a su ruta correcta
+  # 1. Construir la imagen usando la raíz como contexto directo
   - name: 'gcr.io/cloud-builders/docker'
     args: [
       'build', 
       '--no-cache', 
       '-t', 'us-west1-docker.pkg.dev/project-c37db799-6063-4bcf-835/restaurante/frontend:$COMMIT_SHA', 
-      '-f', 'frontend/Dockerfile', # <--- Encuentra el Dockerfile dentro de la carpeta frontend
-      '.'                          # <--- CAMBIADO: Usa la raíz como contexto general
+      '-f', 'Dockerfile', 
+      '.' 
     ]
 
   # 2. Push de la imagen a Artifact Registry
