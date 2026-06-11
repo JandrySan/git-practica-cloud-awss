@@ -1,17 +1,19 @@
 name: Deploy Frontend a Google Cloud Run
 
-# Se ejecuta cada vez que haces push a main en la carpeta frontend
 on:
   push:
     branches:
       - main
-    paths:
-      - 'frontend/**'
+
+# ⚠️ SÚPER CRÍTICO: GitHub necesita estos permisos para poder pedirle el token temporal a Google Cloud
+permissions:
+  contents: 'read'
+  id-token: 'write'
 
 env:
-  PROJECT_ID: TU_PROJECT_ID         # ← reemplaza con tu ID de proyecto GCP
-  SERVICE_NAME: restaurante-frontend # ← nombre del servicio en Cloud Run
-  REGION: us-central1                # ← región de Cloud Run
+  PROJECT_ID: project-c37db799-6063-4bcf-835
+  SERVICE_NAME: git-practica-cloud-aws
+  REGION: us-west1
 
 jobs:
   deploy-frontend:
@@ -19,32 +21,34 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Bajar el código
+      # 1. Descargar el código
       - name: Checkout código
         uses: actions/checkout@v4
 
-      # 2. Autenticarse en Google Cloud
-      - name: Autenticar en GCP
+      # 2. Autenticar en GCP SIN ARCHIVO JSON 🎉
+      - name: Autenticar en GCP (Workload Identity)
         uses: google-github-actions/auth@v2
         with:
-          credentials_json: ${{ secrets.GCP_SA_KEY }}
+          # Reemplaza el número de proyecto "194727093142" si tu número de proyecto es diferente
+          workload_identity_provider: 'projects/194727093142/locations/global/workloadIdentityPools/github-pool/providers/github-provider'
+          service_account: 'TU_CUENTA_DE_SERVICIO@project-c37db799-6063-4bcf-835.iam.gserviceaccount.com'
 
       # 3. Configurar gcloud CLI
       - name: Configurar gcloud
         uses: google-github-actions/setup-gcloud@v2
 
-      # 4. Construir y subir la imagen Docker a Google Container Registry
+      # 4. Construir y subir la imagen Docker
       - name: Build y Push imagen Docker
         run: |
-          cd frontend
           gcloud builds submit \
-            --tag gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }}:${{ github.sha }}
+            --tag us-west1-docker.pkg.dev/${{ env.PROJECT_ID }}/restaurante/frontend:${{ github.sha }} \
+            .
 
       # 5. Desplegar en Cloud Run
       - name: Deploy a Cloud Run
         run: |
           gcloud run deploy ${{ env.SERVICE_NAME }} \
-            --image gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }}:${{ github.sha }} \
+            --image us-west1-docker.pkg.dev/${{ env.PROJECT_ID }}/restaurante/frontend:${{ github.sha }} \
             --platform managed \
             --region ${{ env.REGION }} \
             --allow-unauthenticated \
