@@ -13,7 +13,7 @@ app = FastAPI(
 # ✅ CORS: permite que el frontend en Cloud Run llame al backend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Cuando tengas la URL de Cloud Run, ponla aquí
+    allow_origins=["https://git-practica-cloud-aws-194727093142.us-west1.run.app/"],  # Cuando tengas la URL de Cloud Run, ponla aquí
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
