@@ -1,6 +1,6 @@
 // ⚠️ IMPORTANTE: Cuando tengas la URL de AWS, reemplaza este valor
 // Por ahora apunta al backend local para pruebas
-const API_URL = "http://localhost:8080";
+const API_URL = "http://Restaurante-v2-env.eba-yimwd639.us-east-2.elasticbeanstalk.com";
 
 async function enviarReserva() {
   const nombre   = document.getElementById("nombre").value.trim();
