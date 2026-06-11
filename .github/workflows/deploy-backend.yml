@@ -30,7 +30,7 @@ jobs:
         with:
           aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          application_name: restaurante-v2   # ← nombre de tu app en EB
+          application_name: Restaurante-v2   # ← nombre de tu app en EB
           environment_name: Restaurante-v2-env        # ← nombre del entorno en EB
           region: us-east-2                                # ← cambia si usas otra región
           version_label: "v-${{ github.sha }}"
