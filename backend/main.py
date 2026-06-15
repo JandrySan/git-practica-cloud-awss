@@ -32,7 +32,7 @@ class Reserva(BaseModel):
 @app.get("/")
 def root():
     return {
-        "mensaje": "API Restaurante Familia Sanchez funcionando",
+        "mensaje": "API Restaurante Familia Sanchez funcionando 2205",
         "version": "1.0.0",
         "fecha": datetime.now().isoformat(),
     }
