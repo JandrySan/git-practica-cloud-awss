@@ -1,30 +1,33 @@
 steps:
-  # 1. Construir la imagen usando la raíz como contexto directo
-  - name: 'gcr.io/cloud-builders/docker'
-    args: [
-      'build', 
-      '--no-cache', 
-      '-t', 'us-west1-docker.pkg.dev/project-c37db799-6063-4bcf-835/restaurante/frontend:$COMMIT_SHA', 
-      '-f', 'Dockerfile', 
-      '.' 
-    ]
-
-  # 2. Push de la imagen a Artifact Registry
-  - name: 'gcr.io/cloud-builders/docker'
-    args: ['push', 'us-west1-docker.pkg.dev/project-c37db799-6063-4bcf-835/restaurante/frontend:$COMMIT_SHA']
-
-  # 3. Despliegue en Cloud Run
-  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-    entrypoint: gcloud
+  - name: "gcr.io/cloud-builders/docker"
     args:
-      - run
-      - deploy
-      - git-practica-cloud-aws
-      - --image=us-west1-docker.pkg.dev/project-c37db799-6063-4bcf-835/restaurante/frontend:$COMMIT_SHA
-      - --region=us-west1
-      - --platform=managed
-      - --allow-unauthenticated
-      - --port=8080
+      - "build"
+      - "--no-cache"
+      - "-t"
+      - "us-west1-docker.pkg.dev/project-c37db799-6063-4bcf-835/restaurante/frontend:$COMMIT_SHA"
+      - "-f"
+      - "Dockerfile"
+      - "."
+
+  - name: "gcr.io/cloud-builders/docker"
+    args:
+      - "push"
+      - "us-west1-docker.pkg.dev/project-c37db799-6063-4bcf-835/restaurante/frontend:$COMMIT_SHA"
+
+  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
+    entrypoint: "gcloud"
+    args:
+      - "run"
+      - "deploy"
+      - "git-practica-cloud-aws"
+      - "--image=us-west1-docker.pkg.dev/project-c37db799-6063-4bcf-835/restaurante/frontend:$COMMIT_SHA"
+      - "--region=us-west1"
+      - "--platform=managed"
+      - "--allow-unauthenticated"
+      - "--port=8080"
+
+images:
+  - "us-west1-docker.pkg.dev/project-c37db799-6063-4bcf-835/restaurante/frontend:$COMMIT_SHA"
 
 options:
   logging: CLOUD_LOGGING_ONLY

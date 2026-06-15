@@ -1,0 +1,7 @@
+.git
+.github
+venv
+backend-deploy.zip
+backend/__pycache__
+backend/.pytest_cache
+*.pyc

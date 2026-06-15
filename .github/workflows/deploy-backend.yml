@@ -1,37 +1,35 @@
-name: Deploy Backend a AWS Elastic Beanstalk
+name: Deploy Backend to AWS Elastic Beanstalk
 
-# Se ejecuta cada vez que haces push a main en la carpeta backend
 on:
   push:
     branches:
       - main
     paths:
-      - 'backend/**'
+      - "backend/**"
+      - ".github/workflows/deploy-backend.yml"
+  workflow_dispatch:
 
 jobs:
   deploy-backend:
-    name: Deploy FastAPI → AWS
+    name: Package and deploy FastAPI backend
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Bajar el código del repo
-      - name: Checkout código
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2. Crear el archivo ZIP que AWS necesita
-      - name: Comprimir backend
+      - name: Package backend
         run: |
           cd backend
           zip -r ../backend-deploy.zip .
 
-      # 3. Subir a AWS Elastic Beanstalk
-      - name: Deploy a Elastic Beanstalk
+      - name: Deploy to Elastic Beanstalk
         uses: einaregilsson/beanstalk-deploy@v22
         with:
           aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          application_name: restaurante-v2   # ← nombre de tu app en EB
-          environment_name: Restaurante-v2-env        # ← nombre del entorno en EB
-          region: us-east-2                                # ← cambia si usas otra región
-          version_label: "v-${{ github.sha }}"
+          application_name: restaurante-v2
+          environment_name: Restaurante-v2-env
+          region: us-east-2
+          version_label: "backend-${{ github.sha }}"
           deployment_package: backend-deploy.zip

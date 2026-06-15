@@ -1,78 +1,84 @@
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+from datetime import datetime
 from typing import List
-import datetime
+
+from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel, Field
 
 app = FastAPI(
-    title="API Restaurante Familia Sánchez",
-    description="Backend para gestión de reservas",
-    version="1.0.0"
+    title="API Restaurante Familia Sanchez",
+    description="Backend para gestion de reservas",
+    version="1.0.0",
 )
 
-# ✅ CORS optimizado para trabajar junto al proxy de Nginx
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Al usar Nginx como proxy, esto garantiza que la comunicación no se corte
-    allow_credentials=False, # Nota: Si usas "*" allow_credentials puede requerir configuración específica en algunas versiones de FastAPI, si te da error de credenciales, puedes comentarlo o cambiarlo a False si no manejas cookies/sesiones
+    allow_origins=["*"],
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Base de datos temporal en memoria (luego puedes conectar una DB real)
 reservas_db: List[dict] = []
 
 
-# ---------- MODELOS ----------
-
 class Reserva(BaseModel):
-    nombre: str
-    fecha: str
-    personas: str
-    telefono: str
+    nombre: str = Field(min_length=1)
+    fecha: str = Field(min_length=1)
+    personas: str = Field(min_length=1)
+    telefono: str = Field(min_length=1)
 
-
-# ---------- ENDPOINTS ----------
 
 @app.get("/")
 def root():
     return {
-        "mensaje": "API Restaurante Prueba final Modelado y Frontend prueba funcionando  ✅",
+        "mensaje": "API Restaurante Familia Sanchez funcionando",
         "version": "1.0.0",
-        "fecha": str(datetime.datetime.now())
+        "fecha": datetime.now().isoformat(),
     }
 
 
 @app.get("/health")
 def health_check():
-    """Endpoint de salud para AWS Elastic Beanstalk"""
     return {"status": "healthy"}
 
 
 @app.post("/reserva")
 def crear_reserva(reserva: Reserva):
-    """Recibe una reserva desde el formulario del frontend"""
+    try:
+        total_personas = int(reserva.personas)
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=422,
+            detail="El numero de personas debe ser valido.",
+        ) from exc
+
+    if total_personas < 1:
+        raise HTTPException(
+            status_code=422,
+            detail="La reserva debe ser para al menos una persona.",
+        )
+
     nueva = {
         "id": len(reservas_db) + 1,
         "nombre": reserva.nombre,
         "fecha": reserva.fecha,
-        "personas": reserva.personas,
+        "personas": str(total_personas),
         "telefono": reserva.telefono,
-        "creado_en": str(datetime.datetime.now())
+        "creado_en": datetime.now().isoformat(),
     }
     reservas_db.append(nueva)
-    print(f"📋 Nueva reserva recibida: {nueva}")
+
     return {
         "status": "ok",
-        "mensaje": f"¡Reserva confirmada para {reserva.nombre} el {reserva.fecha}!",
-        "reserva": nueva
+        "mensaje": f"Reserva confirmada para {reserva.nombre} el {reserva.fecha}.",
+        "reserva": nueva,
     }
 
 
 @app.get("/reservas")
 def listar_reservas():
-    """Lista todas las reservas recibidas"""
     return {
         "total": len(reservas_db),
-        "reservas": reservas_db
+        "reservas": reservas_db,
     }

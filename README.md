@@ -1,39 +1,66 @@
-# Restaurante Familia Sánchez — Full Stack con CI/CD
+# Restaurante Familia Sanchez - Full Stack con CI/CD
 
-## ⚙️ Secrets que debes configurar en GitHub
+Proyecto con frontend estatico en Google Cloud Run y backend FastAPI en AWS Elastic Beanstalk.
 
-Ve a tu repo → Settings → Secrets and variables → Actions → New repository secret
+## URLs de produccion
 
-| Secret | Valor |
-|--------|-------|
-| `AWS_ACCESS_KEY_ID` | Access Key del usuario IAM de AWS |
-| `AWS_SECRET_ACCESS_KEY` | Secret Key del usuario IAM de AWS |
-| `GCP_SA_KEY` | JSON de la cuenta de servicio de GCP |
+- Frontend: https://git-practica-cloud-aws-194727093142.us-west1.run.app/
+- Backend: http://restaurante-v2-env.eba-yimwd639.us-east-2.elasticbeanstalk.com/
 
-## 🔧 Pasos pendientes antes de que funcione
+## Como se conectan
 
-1. **En `frontend/index.html`**: reemplaza `TU-URL-DE-AWS.elasticbeanstalk.com` con la URL real de tu app en Elastic Beanstalk.
-2. **En `.github/workflows/deploy-frontend.yml`**: reemplaza `TU_PROJECT_ID` con tu ID de proyecto GCP.
-3. **En `.github/workflows/deploy-backend.yml`**: verifica que `application_name` y `environment_name` coincidan con los que crees en Elastic Beanstalk.
+El formulario del frontend envia las reservas a `/reserva` en el mismo dominio de Cloud Run.
 
-## 🚀 Endpoints del Backend
+Nginx recibe esa ruta en el contenedor del frontend y la reenvia al backend real:
 
-| Método | Ruta | Descripción |
-|--------|------|-------------|
-| GET | `/` | Info de la API |
-
-| GET | `/health` | Health check para AWS |
-| POST | `/reserva` | Crear una reserva |
-| GET | `/reservas` | Listar todas las reservas |
-
-## Ejemplo de petición al backend
-
-```json
-POST /reserva
-{
-  "nombre": "Juan Pérez",
-  "fecha": "2026-06-20",
-  "personas": "4",
-  "telefono": "0991234567"
-}
+```text
+https://git-practica-cloud-aws-194727093142.us-west1.run.app/reserva
+  -> http://restaurante-v2-env.eba-yimwd639.us-east-2.elasticbeanstalk.com/reserva
 ```
+
+Esto evita problemas de CORS y mantiene el frontend apuntando siempre a su propio dominio.
+
+## Secrets necesarios en GitHub Actions
+
+Configura estos secrets en `Settings > Secrets and variables > Actions`:
+
+| Secret | Uso |
+| --- | --- |
+| `AWS_ACCESS_KEY_ID` | Access key del usuario IAM para Elastic Beanstalk |
+| `AWS_SECRET_ACCESS_KEY` | Secret key del usuario IAM para Elastic Beanstalk |
+| `GCP_WORKLOAD_IDENTITY_PROVIDER` | Provider completo de Workload Identity Federation |
+| `GCP_SERVICE_ACCOUNT` | Cuenta de servicio de GCP usada por GitHub Actions |
+
+## Despliegues
+
+- Frontend: `.github/workflows/deploy-frontend.yml` construye la imagen con el `Dockerfile` de la raiz y despliega en Cloud Run.
+- Backend: `.github/workflows/deploy-backend.yml` empaqueta `backend/` y despliega en Elastic Beanstalk.
+- Cloud Build: `cloudbuild.yaml` hace el mismo build/deploy del frontend si se usa un trigger directo de Google Cloud Build.
+
+## Endpoints del backend
+
+| Metodo | Ruta | Descripcion |
+| --- | --- | --- |
+| GET | `/` | Informacion de la API |
+| GET | `/health` | Health check |
+| POST | `/reserva` | Crear una reserva |
+| GET | `/reservas` | Listar reservas |
+
+## Probar localmente
+
+Backend:
+
+```bash
+cd backend
+pip install -r requirements.txt
+uvicorn main:app --reload
+```
+
+Frontend con Docker:
+
+```bash
+docker build -t restaurante-frontend .
+docker run --rm -p 8080:8080 restaurante-frontend
+```
+
+Luego abre `http://localhost:8080`.
